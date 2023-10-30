@@ -60,7 +60,7 @@ exports.getAllFloorPlan = async (req, res) => {
 
 exports.createNewFloorPlan = async (req, res) => {
     try {
-        const { name, address, remarks, location, description } = req.body;
+        const { name, address, remarks, location, description, date  } = req.body;
         const mainImageFile = req.files['mainImage'][0]; // Access the mainImage file
         const floorDetailImages = req.files['img']; // Access the img field files
 
@@ -71,6 +71,7 @@ exports.createNewFloorPlan = async (req, res) => {
             name,
             address,
             remarks,
+            date,
             floorDetails: [],
         });
 
@@ -82,11 +83,21 @@ exports.createNewFloorPlan = async (req, res) => {
         // Add floorDetailImages to floorDetails
         if (floorDetailImages) {
             floorDetailImages.forEach((image, index) => {
-                newFloorPlan.floorDetails.push({
-                    img: image.filename,
-                    location: location[index],       // Adjust the key to match the new form data structure
-                    description: description[index] // Similarly, adjust the description key
-                });
+                const ext = image.originalname.split('.').pop();
+                if(floorDetailImages.length === 1){
+                    newFloorPlan.floorDetails.push({
+                        img: `${image.filename}`,
+                        location: location,       // Adjust the key to match the new form data structure
+                        description: description // Similarly, adjust the description key
+                    });
+                } else{
+
+                    newFloorPlan.floorDetails.push({
+                        img: `${image.filename}`,
+                        location: location[index],       // Adjust the key to match the new form data structure
+                        description: description[index] // Similarly, adjust the description key
+                    });
+                }
             });
         } 
 
