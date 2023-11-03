@@ -60,13 +60,17 @@ exports.getAllFloorPlan = async (req, res) => {
 
 exports.createNewFloorPlan = async (req, res) => {
     try {
-        const { name, address, remarks, location, description, date  } = req.body;
+        const { name, address, remarks, location, description, date } = req.body;
         const mainImageFile = req.files['mainImage'][0]; // Access the mainImage file
         const floorDetailImages = req.files['img']; // Access the img field files
 
-        console.log("main file is ", mainImageFile)
-        console.log("floorDetailImages file is ", floorDetailImages)
+        console.log("images are ", req.files)
+        
+        // Parse the JSON string to get the imgCount array
+        const imgCount = JSON.parse(req.body.imgCount);
+        console.log('imgCount from frontend:', imgCount);
 
+        // Create a new FloorPlan instance
         const newFloorPlan = new FloorPlan({
             name,
             address,
@@ -80,28 +84,28 @@ exports.createNewFloorPlan = async (req, res) => {
             newFloorPlan.mainImage = mainImageFile.filename;
         }
 
-        // Add floorDetailImages to floorDetails
-        if (floorDetailImages) {
-            floorDetailImages.forEach((image, index) => {
-                const ext = image.originalname.split('.').pop();
-                if(floorDetailImages.length === 1){
-                    newFloorPlan.floorDetails.push({
-                        img: `${image.filename}`,
-                        location: location,       // Adjust the key to match the new form data structure
-                        description: description // Similarly, adjust the description key
-                    });
-                } else{
+        // Generate floorDetails based on imgCount
+        imgCount.forEach((count, index) => {
+            const floorDetail = {
+                img: [],
+                location: typeof(location) === 'string' ? location : location[index] , // Adjust the key to match the new form data structure
+                description: typeof(location) === 'string' ? description : description[index] // Similarly, adjust the description key
+            };
 
-                    newFloorPlan.floorDetails.push({
-                        img: `${image.filename}`,
-                        location: location[index],       // Adjust the key to match the new form data structure
-                        description: description[index] // Similarly, adjust the description key
-                    });
+            if (floorDetailImages) {
+                for (let i = 0; i < count; i++) {
+                    const image = floorDetailImages.shift(); // Shift and remove the first image from the array
+                    if (image) {
+                        const ext = image.originalname.split('.').pop();
+                        floorDetail.img.push(image.filename);
+                    }
                 }
-            });
-        } 
+            }
 
-        
+            newFloorPlan.floorDetails.push(floorDetail);
+        });
+
+
 
         await newFloorPlan.save();
 

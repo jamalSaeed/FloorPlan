@@ -19,7 +19,7 @@ const floorSchema = new mongoose.Schema({
     floorDetails:  [
         {
             img: {
-                type: String,
+                type: [String],
             },
             description: {
                 type: String,
