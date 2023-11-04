@@ -10,7 +10,7 @@ const app = require('./app')
 
 const connectDB = async () => {
     try {
-      const conn = await mongoose.connect(process.env.DATABASE, {
+      const conn = await mongoose.connect('mongodb+srv://jsaeed71:P8ITAbWBbqT1Dd7g@floorcluster.8xyb7du.mongodb.net/?retryWrites=true&w=majority', {
         useNewUrlParser: true,
         useUnifiedTopology: true
       });
@@ -37,7 +37,7 @@ const connectDB = async () => {
 
 
 
-const port = process.env.PORT || 3000
+const port = 3000
 connectDB().then(() => {
 app.listen(port,() =>{
 console.log(`server is running on ${port}` )
